@@ -73,14 +73,16 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data["state"] = "awaiting_screenshot"
 
     elif state == "awaiting_screenshot" and update.message.photo:
-        # Foydalanuvchi screenshot yubordi
         await update.message.reply_text("Rahmat! Iltimos, biroz kuting — pul tezda yuboriladi.")
         # Admin ga bildirish
-        data = user_data.get(chat_id="5258395757", {})
+        data = user_data.get(user_id, {})
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         await context.bot.send_message(
             ADMIN_CHAT_ID,
-            f"💳 Karta raqami: 8600530490663815\n🆔 {data.get('1xbet_id')}\n💶 Summa: {data.get('amount')} soʻm\n🕘 {now}\n✅ Muvaffaqiyatli o‘tkazildi"
+            f"💳 Karta raqami: {data.get('card')}\n"
+            f"🆔1xbet ID: {data.get('1xbet_id')}\n"
+            f"💶 Summa: {data.get('amount')} soʻm\n"
+            f"🕘 {now}\n✅ Muvaffaqiyatli o‘tkazildi"
         )
         context.user_data.clear()
 
@@ -104,7 +106,6 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Iltimos sabrli bo'ling — pul 10 daqiqadan 10 soatgacha yuboriladi. "
             "Sabr-toqatingiz uchun rahmat!\n/start"
         )
-        # Admin ga xabar yuborish
         await context.bot.send_message(
             ADMIN_CHAT_ID,
             f"💳 Karta: {context.user_data['withdraw_card']}\n"
