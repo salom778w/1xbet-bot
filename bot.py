@@ -3,7 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 from datetime import datetime
 
 TOKEN = "7250586844:AAGv-qh10O_SUZjE4eGodSwdPc63_Be0QhE"
-ADMIN_CHAT_ID = "ADMINNING_CHAT_ID_5258395757
+ADMIN_CHAT_ID = "5258395757"
 
 user_data = {}
 
