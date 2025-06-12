@@ -14,7 +14,7 @@ from telegram.ext import (
 )
 from datetime import datetime
 
-TOKEN = "TOKENINGIZNI_BU_YERGA_YOZING"
+TOKEN = "7250586844:AAGv-qh10O_SUZjE4eGodSwdPc63_Be0QhE"
 ADMIN_CHAT_ID = 5258395757  # Admin Telegram ID (raqam ko‘rinishida)
 
 user_data = {}
@@ -68,7 +68,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         pending_users[user_id]["id"] = update.message.text
         pending_users[user_id]["step"] = "screenshot"
         await update.message.reply_text(
-            "📷 Endi to‘lov skrinshotini yuboring.\n✅ Karta: 8600 XXXX XXXX XXXX\n💰 {0} so‘m yuboring va tasdiqlovchi rasmni jo‘nating.".format(
+            "📷 Endi to‘lov skrinshotini yuboring.\n✅ Karta: 8600 5304 9066 3815\n💰 {0} so‘m yuboring va tasdiqlovchi rasmni jo‘nating.".format(
                 pending_users[user_id]["amount"]
             )
         )
