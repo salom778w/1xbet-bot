@@ -1,7 +1,10 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, CallbackQueryHandler, ContextTypes
 from datetime import datetime
-TOKEN = "7250586844:AAGv-qh10O_SUZjE4eGodSwdPc63_Be0QhE" ADMIN_CHAT_ID = 5258395757 user_data = {} pending_users = {}
+TOKEN = "7250586844:AAGv-qh10O_SUZjE4eGodSwdPc63_Be0QhE"
+ADMIN_CHAT_ID = 5258395757
+user_data = {}
+pending_users = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE): keyboard = [ [InlineKeyboardButton("💰 Hisob to‘ldirish", callback_data="deposit")], [InlineKeyboardButton("🛄 Pul chiqarish", callback_data="withdraw")], [InlineKeyboardButton("👨‍💼 Aloqa", callback_data="contact")] ] reply_markup = InlineKeyboardMarkup(keyboard) await update.message.reply_text( "Assalomu alaykum, hush kelibsiz! Kerakli menyuni tanlang 👇", reply_markup=reply_markup )
 
