@@ -15,7 +15,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("💰 Hisob to‘ldirish: +0%", callback_data="hisob_tol")],
         [InlineKeyboardButton("➖ Pul chiqarish: 0%", callback_data="pul_chiqar")],
         [InlineKeyboardButton("👨‍💼 Operator", callback_data="operator")],
-        [InlineKeyboardButton("📥 Ilovalar", url="https://t.me/YOUR_LINK")]
+        [InlineKeyboardButton("📥 Ilovalar", url="https://t.me/https://t.me/melbetstavkal/256")]
     ]
     await update.message.reply_text("💎 Hush kelibsiz 💎", reply_markup=InlineKeyboardMarkup(keyboard))
 
