@@ -1,110 +1,187 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import (ApplicationBuilder, CommandHandler, MessageHandler,
+                          CallbackQueryHandler, ContextTypes, filters)
 from datetime import datetime
+import random
 
-TOKEN = "7250586844:AAGv-qh10O_SUZjE4eGodSwdPc63_Be0QhE"
+TOKEN = "TOKENINGIZNI_KIRITING"
 ADMIN_CHAT_ID = 5258395757
 user_data = {}
+pending_payments = {}
 pending_withdrawals = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("💰 Hisob to‘ldirish", callback_data="deposit")],
-        [InlineKeyboardButton("📤 Pul chiqarish", callback_data="withdraw")],
-        [InlineKeyboardButton("👨‍💼 Aloqa", callback_data="contact")],
+        [InlineKeyboardButton("💰 Hisob to‘ldirish: +0%", callback_data="hisob_tol")],
+        [InlineKeyboardButton("➖ Pul chiqarish: 0%", callback_data="pul_chiqar")],
+        [InlineKeyboardButton("👨‍💼 Operator", callback_data="operator")],
+        [InlineKeyboardButton("📥 Ilovalar", url="https://t.me/YOUR_LINK")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Assalomu alaykum, hush kelibsiz! Kerakli menyuni tanlang 👇", reply_markup=reply_markup)
+    await update.message.reply_text("💎 Hush kelibsiz 💎", reply_markup=InlineKeyboardMarkup(keyboard))
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    if query.data == "withdraw":
-        chat_id = query.message.chat.id
-        user_data[chat_id] = {"step": "get_id"}
+    if query.data == "operator":
+        await query.message.reply_text("Admin: @xbetkassauz1")
+
+    elif query.data == "hisob_tol":
+        context.user_data.clear()
+        await query.message.reply_text("Hisob raqamingizni kiriting:")
+        context.user_data["state"] = "hisob_id"
+
+    elif query.data == "pul_chiqar":
         await query.message.reply_text(
-            "⚠️Oldin Shu manzilga ariza yarating va maxsus (4 talik) kod oling\n(SHAXAR: Oltiariq, KO‘CHA: Remax24/7)\n\n🆔ID raqamingizni kiriting...👇")
+            "⚠️Oldin Shu manzilga ariza yarating va Ariza yartgan joyizda maqsus 4 talik kod olasiz✅\n"
+            "⚠️MANZIL (SHAXAR: Oltiariq) (KOCHA: Remax24/7)\n\n"
+            "Pul chiqarish uchun 1xBET UZS ID raqamingizni kiriting..."
+        )
+        context.user_data["state"] = "withdraw_id"
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat.id
+    user_id = update.message.from_user.id
     text = update.message.text
+    state = context.user_data.get("state")
 
-    if chat_id not in user_data:
-        return
+    if state == "hisob_id":
+        context.user_data["hisob_id"] = text
+        await update.message.reply_text("Karta raqamini kiriting:")
+        context.user_data["state"] = "hisob_card"
 
-    step = user_data[chat_id].get("step")
+    elif state == "hisob_card":
+        context.user_data["hisob_card"] = text
+        await update.message.reply_text("Minimal: 15000 UZS\nMaksimal: 3000000 UZS\n\nMiqdorni kiriting:")
+        context.user_data["state"] = "hisob_sum"
 
-    if step == "get_id":
-        user_data[chat_id]["id"] = text
-        user_data[chat_id]["step"] = "get_card"
-        await update.message.reply_text("Ajoyib! Pul qabul qilish uchun karta raqamingizni kiriting")
+    elif state == "hisob_sum":
+        try:
+            amount = int(text)
+            rand_extra = random.randint(1, 100)
+            pay_amount = amount + rand_extra
+            context.user_data["hisob_sum"] = amount
+            context.user_data["pay_amount"] = pay_amount
+            tg_id = random.randint(100000, 999999)
+            context.user_data["tg_id"] = tg_id
 
-    elif step == "get_card":
-        user_data[chat_id]["card"] = text
-        user_data[chat_id]["step"] = "get_code"
-        await update.message.reply_text("1xbet tomonidan berilgan 4 talik kodni kiriting")
+            await update.message.reply_text(
+                f"Diqqat! Bot sizga bergan aniq miqdorni o'tkazing, bu sizning summangizdan farq qiladi!\n"
+                f"\nKarta: 8600530490663815\n"
+                f"BUNI O'TKAZMANG: {amount} UZS ❌\n"
+                f"BUNI O'TKAZING: {pay_amount} UZS ✅\n"
+                f"\n✅ To'lovni amalga oshirgach, 5 daqiqa ichida skrinshot yuboring!\n"
+                f"⛔️ Xato miqdor yuborilsa, 15 ish kuni ichida pul qaytariladi yoki kuyadi!\n"
+                f"TG_ID: {tg_id}"
+            )
+            context.user_data["state"] = "hisob_screenshot"
+        except:
+            await update.message.reply_text("Miqdorni to‘g‘ri kiriting:")
 
-    elif step == "get_code":
-        user_data[chat_id]["code"] = text
-        user_data[chat_id]["step"] = "done"
+    elif state == "hisob_screenshot" and update.message.photo:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        pending_payments[user_id] = dict(context.user_data)
+        info = context.user_data
 
-        time_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        user_info = user_data[chat_id]
-
-        msg = (
-            "✅Arizangiz muvoffaqiyatli qabul qilindi !\n\n"
-            f"💳Karta: {user_info['card']}\n"
-            f"🆔1xbet ID: {user_info['id']}\n"
-            f"#️⃣4 talik kod: {user_info['code']}\n\n"
-            f"📆Vaqt: {time_now}\n\n"
-            "Pul kartangizga tez orada o'tkaziladi\n"
-            "Iltimos sabrli bo'ling. Pul 10 daqiqadan 10 soatgacha yuboriladi. Sabr-toqatingiz uchun rahmat!\n\n"
-            "Bosh sahifaga qaytish - /start"
+        caption = (
+            f"✅HISOB TOLDIRIW\n\nID: {info['tg_id']}\n💳Karta: {info['hisob_card']}\n"
+            f"🆔ID: {info['hisob_id']}\n💸Miqdor: {info['pay_amount']}\n📆Vaqt: {now}"
         )
-
-        await update.message.reply_text(msg)
-
-        # Adminga xabar yuborish
-        keyboard = [
-            [
-                InlineKeyboardButton("✅ Tasdiqlash", callback_data=f"approve_{chat_id}"),
-                InlineKeyboardButton("❌ Rad etish", callback_data=f"reject_{chat_id}")
-            ]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        admin_msg = (
-            "📥 Yangi pul chiqarish so‘rovi\n"
-            f"💳Karta: {user_info['card']}\n"
-            f"🆔1xbet ID: {user_info['id']}\n"
-            f"#️⃣4 talik kod: {user_info['code']}\n"
-            f"📆Vaqt: {time_now}"
+        keyboard = [[
+            InlineKeyboardButton("✅ TASDIQLASH", callback_data=f"tasdiq_{user_id}"),
+            InlineKeyboardButton("❌ RAD ETISH", callback_data=f"rad_{user_id}")
+        ]]
+        await context.bot.send_photo(
+            ADMIN_CHAT_ID,
+            photo=update.message.photo[-1].file_id,
+            caption=caption,
+            reply_markup=InlineKeyboardMarkup(keyboard)
         )
+        await update.message.reply_text("✅Arizangiz muvoffaqiyatli qabul qilindi, pul 10 daqiqada tushadi!")
+        context.user_data.clear()
 
-        await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_msg, reply_markup=reply_markup)
-        pending_withdrawals[chat_id] = user_info
+    elif state == "withdraw_id":
+        context.user_data["withdraw_id"] = text
+        await update.message.reply_text("💳Pul qabul qilinishi kerak bo‘lgan karta raqamingizni kiriting...")
+        context.user_data["state"] = "withdraw_card"
 
-async def admin_action_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    elif state == "withdraw_card":
+        if text.isdigit():
+            context.user_data["withdraw_card"] = text
+            await update.message.reply_text("#️⃣ Pul chiqarish uchun berilgan maxsus 4 ta belgidan iborat kodni kiriting...")
+            context.user_data["state"] = "withdraw_code"
+        else:
+            await update.message.reply_text("❗️Diqqat, noto‘g‘ri ma’lumot. Faqat raqam kiriting.")
+
+    elif state == "withdraw_code":
+        if len(text) <= 4:
+            context.user_data["withdraw_code"] = text
+            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            info = context.user_data
+            pending_withdrawals[user_id] = dict(info)
+
+            caption = (
+                f"➖Pul chiqarish:\n\n💳Karta: {info['withdraw_card']}\n🆔ID: {info['withdraw_id']}\n"
+                f"#️⃣4 talik kod: {info['withdraw_code']}\n📆Vaqt: {now}"
+            )
+            keyboard = [[
+                InlineKeyboardButton("✅ TASDIQLASH", callback_data=f"tasdiq_w_{user_id}"),
+                InlineKeyboardButton("❌ RAD ETISH", callback_data=f"rad_w_{user_id}")
+            ]]
+            await context.bot.send_message(
+                ADMIN_CHAT_ID,
+                caption,
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+            await update.message.reply_text("✅Arizangiz qabul qilindi, 10 daqiqadan 10 soatgacha pul tushadi.")
+            context.user_data.clear()
+        else:
+            await update.message.reply_text("❗️Kod faqat 4 belgidan iborat bo‘lishi kerak.")
+
+async def admin_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-
     data = query.data
-    if data.startswith("approve_"):
-        user_id = int(data.split("_")[1])
-        await context.bot.send_message(chat_id=user_id, text="✅ So‘rovingiz ko‘rib chiqildi va pul hisobingizga o‘tkazildi!")
-        await query.edit_message_text("So‘rov tasdiqlandi.")
-    elif data.startswith("reject_"):
-        user_id = int(data.split("_")[1])
-        await context.bot.send_message(chat_id=user_id, text="❌ So‘rovingiz rad etildi. Iltimos admin bilan bog‘laning: @Xbetkassauz1")
-        await query.edit_message_text("So‘rov rad etildi.")
 
-if __name__ == '__main__':
+    if data.startswith("tasdiq_"):
+        user_id = int(data.split("_")[1])
+        if user_id in pending_payments:
+            info = pending_payments.pop(user_id)
+            await context.bot.send_message(
+                user_id,
+                f"✅Arizangiz muvoffaqiyatli bajarildi!\n💳 {info['hisob_card']}\n💰 {info['pay_amount']} so‘m"
+            )
+
+    elif data.startswith("rad_"):
+        user_id = int(data.split("_")[1])
+        await context.bot.send_message(
+            user_id,
+            "❌ Arizangiz rad etildi. Iltimos, @xbetkassauz1 bilan bog‘laning."
+        )
+
+    elif data.startswith("tasdiq_w_"):
+        user_id = int(data.split("_")[2])
+        if user_id in pending_withdrawals:
+            await context.bot.send_message(
+                user_id,
+                "✅Arizangiz muvoffaqiyatli bajarildi. Pul kartangizga tushdi."
+            )
+
+    elif data.startswith("rad_w_"):
+        user_id = int(data.split("_")[2])
+        await context.bot.send_message(
+            user_id,
+            "❌ Arizangiz rad etildi. Iltimos, @xbetkassauz1 bilan bog‘laning."
+        )
+
+    await query.message.edit_reply_markup(reply_markup=None)
+
+def main():
     app = ApplicationBuilder().token(TOKEN).build()
-
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button_handler, pattern="^withdraw$"))
-    app.add_handler(CallbackQueryHandler(admin_action_handler, pattern="^(approve|reject)_"))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
-
+    app.add_handler(CallbackQueryHandler(button_handler, pattern="^(hisob_tol|pul_chiqar|operator|back_to_menu|tolov_1xbetuzs)$"))
+    app.add_handler(CallbackQueryHandler(admin_response, pattern="^(tasdiq_|rad_|tasdiq_w_|rad_w_).+"))
+    app.add_handler(MessageHandler(filters.TEXT | filters.PHOTO, message_handler))
     app.run_polling()
+
+if __name__ == "__main__":
+    main()
