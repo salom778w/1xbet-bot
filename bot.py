@@ -142,7 +142,22 @@ async def admin_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     data = query.data
 
-    if data.startswith("tasdiq_"):
+    if data.startswith("tasdiq_w_"):
+        user_id = int(data.split("_")[2])
+        if user_id in pending_withdrawals:
+            await context.bot.send_message(
+                user_id,
+                "✅Arizangiz muvoffaqiyatli bajarildi. Pul kartangizga tushdi."
+            )
+
+    elif data.startswith("rad_w_"):
+        user_id = int(data.split("_")[2])
+        await context.bot.send_message(
+            user_id,
+            "❌ Arizangiz rad etildi. Iltimos, @xbetkassauz1 bilan bog‘laning."
+        )
+
+    elif data.startswith("tasdiq_"):
         user_id = int(data.split("_")[1])
         if user_id in pending_payments:
             info = pending_payments.pop(user_id)
@@ -158,22 +173,8 @@ async def admin_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "❌ Arizangiz rad etildi. Iltimos, @xbetkassauz1 bilan bog‘laning."
         )
 
-    elif data.startswith("tasdiq_w_"):
-        user_id = int(data.split("_")[2])
-        if user_id in pending_withdrawals:
-            await context.bot.send_message(
-                user_id,
-                "✅Arizangiz muvoffaqiyatli bajarildi. Pul kartangizga tushdi."
-            )
-
-    elif data.startswith("rad_w_"):
-        user_id = int(data.split("_")[2])
-        await context.bot.send_message(
-            user_id,
-            "❌ Arizangiz rad etildi. Iltimos, @xbetkassauz1 bilan bog‘laning."
-        )
-
     await query.message.edit_reply_markup(reply_markup=None)
+
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
