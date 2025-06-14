@@ -13,7 +13,7 @@ pending_withdrawals = {}
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("💰 Hisob to‘ldirish: +0%", callback_data="hisob_tol")],
-        [InlineKeyboardButton("➖ Pul chiqarish: 0%", callback_data="pul_chiqar")],
+        [InlineKeyboardButton("➖ Pul chiqarish: +3%", callback_data="pul_chiqar")],
         [InlineKeyboardButton("👨‍💼 Operator", callback_data="operator")],
         [InlineKeyboardButton("📥 Ilovalar", url="https://t.me/melbetstavkal/256")]
     ]
@@ -66,7 +66,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             await update.message.reply_text(
                 f"Diqqat! Bot sizga bergan aniq miqdorni o'tkazing, bu sizning summangizdan farq qiladi!\n"
-                f"\nKarta: 8600530490663815\n"
+                f"\nKarta: 8600530485147717\n"
                 f"BUNI O'TKAZMANG: {amount} UZS ❌\n"
                 f"BUNI O'TKAZING: {pay_amount} UZS ✅\n"
                 f"\n✅ To'lovni amalga oshirgach, 5 daqiqa ichida skrinshot yuboring!\n"
